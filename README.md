@@ -6,7 +6,7 @@ This is a one-off project to test that redirects are in place, before a site is 
 
 There are a few steps.
 
-###  Python
+### Python
 
 Ensure you have Python 3.9 installed, as well as pipenv. Then run the following:
 
@@ -14,15 +14,15 @@ Ensure you have Python 3.9 installed, as well as pipenv. Then run the following:
 pipenv install
 ```
 
-###  Scraping a list of pages
+### Scraping a list of pages
 
-Run
+This scrapes the existing site to get a list of page links that should have redirects from them. Run
 
 ```
 pipenv run scrapy runspider scraper.py -o ./output/output.csv
 ```
 
-###  Modifying your hosts file
+### Modifying your hosts file
 
 Add a line to your hosts file (using something like `sudo nano /etc/hosts`) for the site that you're trying to test. This is needed because the DNS will point to the old website and will not enable you to test anything.
 
