@@ -1,7 +1,6 @@
 from urllib.parse import urlparse
 import scrapy
 
-TARGET_DOMAIN = "ctfassets.net"
 FOLLOW_DOMAIN = "essexlocaloffer.org.uk"
 
 
@@ -9,18 +8,8 @@ class AssetSpider(scrapy.Spider):
     name = "assets"
     start_urls = ["http://www.essexlocaloffer.org.uk/"]
 
-    # custom_settings = {"CLOSESPIDER_PAGECOUNT": 5}
-
     def parse(self, response):
         yield {"url": response.url}
-
-        # # Introspect all tags with an src or an href attribute for the target domain
-        # for img in response.xpath('//@src|//@href').extract():
-        #     if TARGET_DOMAIN in img:
-        #         yield {
-        #             'asset': img,
-        #             'source': response.url
-        #         }
 
         # Follow a href to find new pages
         for link in response.xpath("//a/@href").extract():
@@ -35,10 +24,7 @@ class AssetSpider(scrapy.Spider):
                 if parsed.hostname in (FOLLOW_DOMAIN, f"www.{FOLLOW_DOMAIN}"):
                     relative = True
             if relative:
-                # if "?" in link:
-                #     # Skip parameterised requests
-                #     continue
-
+                # Skip non-HTML
                 if link.split(".")[-1] in (
                     "mp4",
                     "pdf",
@@ -49,10 +35,8 @@ class AssetSpider(scrapy.Spider):
                     "ppt",
                     "pptx",
                 ):
-                    # Skip non-HTML
-                    # These files will be repeated - need to remove these later
+                    # These files will be repeated in output.csv - need to remove these later
                     yield {"url": link}
                     continue
+
                 yield response.follow(link, callback=self.parse)
-            else:
-                print(parsed)

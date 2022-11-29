@@ -12,24 +12,23 @@ try:
         print(f"Checking {url}...")
 
         # First don't follow redirects
-        # try:
+        # Setting verify=False means it won't check validity of TLS certificates
+        # We need this because the site doesn't have a valid TLS certificate yet
+        # You should change this under most circumstances
         original_response = requests.get(
             url, allow_redirects=False, timeout=5, verify=False
         )
-        print(original_response.status_code)
+        # Update dataframe with the original status code
         urls.at[idx, "status"] = original_response.status_code
 
-        # except (requests.exceptions.ConnectionError, requests.exceptions.SSLError) as e:
-        #     raise ConnectionError(e)
-        #     urls.at[idx, "status"] = 0
-        #     continue
-
-        print("Got here!")
         # Now follow redirects
         if 300 <= original_response.status_code < 400:
             try:
+                # Setting verify=False means it won't check validity of TLS certificates
+                # You should change this under most circumstances
                 final_response = requests.get(url, timeout=5, verify=False)
                 urls.at[idx, "final_location"] = final_response.url
+            # record errors with code of 0
             except (requests.exceptions.ConnectionError, requests.exceptions.SSLError):
                 urls.at[idx, "final_status"] = 0
                 continue
@@ -37,9 +36,10 @@ try:
         else:
             final_response = original_response
 
-        print(final_response.status_code)
         urls.at[idx, "final_status"] = final_response.status_code
 
+# Export to an excel sheet if you interrupt the program
+# So you don't always have to run the whole program
 except KeyboardInterrupt:
     urls.to_excel("output/redirect_test_output.xlsx")
 
