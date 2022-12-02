@@ -12,6 +12,7 @@ urls["final_location"] = ""
 
 try:
     for idx, url in enumerate(redirects.keys()):
+        # Check wildcards by replacing * with a test string
         url = url.replace("*", "foo").replace("http://www.essex.gov.uk", "/").replace("https://www.essex.gov.uk", "/")
         urls.at[idx, "original_url"] = url
         url = "https://portal.whitemoss-5a7067b3.uksouth.azurecontainerapps.io" + url
@@ -19,14 +20,6 @@ try:
 
         print(f"Checking {url}...")
 
-        # First don't follow redirects
-        # original_response = requests.get(
-        #     url, allow_redirects=False, timeout=5)
-        # # Update dataframe with the original status code
-        # urls.at[idx, "status"] = original_response.status_code
-
-        # Now follow redirects
-        # if 300 <= original_response.status_code < 400:
         try:
             final_response = requests.get(url, timeout=5)
             urls.at[idx, "final_location"] = final_response.url
@@ -34,9 +27,6 @@ try:
         except (requests.exceptions.ConnectionError, requests.exceptions.SSLError, requests.exceptions.ReadTimeout):
             urls.at[idx, "final_status"] = 0
             continue
-
-        # else:
-        #     final_response = original_response
 
         urls.at[idx, "final_status"] = final_response.status_code
 
